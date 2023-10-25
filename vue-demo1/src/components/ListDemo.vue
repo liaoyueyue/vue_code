@@ -9,6 +9,10 @@
       <img :src="item.avator" :class="dynamicImg" />
     </div>
   </div>
+  <h3>对象渲染</h3>
+  <div v-for="(value, key, index) in user">
+    [{{ index }}] {{ value }} : {{ key }}
+  </div>
 </template>
 
 <script>
@@ -36,6 +40,11 @@ export default {
       ],
       dynamicImg: "my-img",
       dynamicDiv: "my-div",
+      user: {
+        name: "zhangsan",
+        gender: "man",
+        age: 18,
+      },
     };
   },
 };
