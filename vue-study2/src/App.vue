@@ -1,4 +1,16 @@
 <script setup>
+<<<<<<< HEAD
+  import ButtonVue from './Button.vue'
+  import Problem from './Problem.vue'
+</script>
+
+<template>
+  <div>
+    <!-- <ButtonVue /> -->
+    <Problem />
+  </div>
+</template>
+=======
 import HelloWorld from './components/HelloWorld.vue'
 import TheWelcome from './components/TheWelcome.vue'
 </script>
@@ -45,3 +57,4 @@ header {
   }
 }
 </style>
+>>>>>>> 80f3a9773694f75933c3cda3f842e22d6f24acde

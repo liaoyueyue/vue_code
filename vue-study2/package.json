@@ -1,5 +1,17 @@
 {
+<<<<<<< HEAD
+<<<<<<<< HEAD:vue-study2/package.json
   "name": "vue-study2",
+========
+  "name": "vue-study1",
+>>>>>>>> 80f3a9773694f75933c3cda3f842e22d6f24acde:vue-study1/package.json
+=======
+<<<<<<<< HEAD:vue-study1/package.json
+  "name": "vue-study1",
+========
+  "name": "vue-study2",
+>>>>>>>> 80f3a9773694f75933c3cda3f842e22d6f24acde:vue-study2/package.json
+>>>>>>> 80f3a9773694f75933c3cda3f842e22d6f24acde
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -9,6 +21,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+<<<<<<< HEAD
+<<<<<<<< HEAD:vue-study2/package.json
+    "element-plus": "^2.6.3",
+========
+    "axios": "^1.6.8",
+>>>>>>>> 80f3a9773694f75933c3cda3f842e22d6f24acde:vue-study1/package.json
+=======
+<<<<<<<< HEAD:vue-study1/package.json
+    "axios": "^1.6.8",
+========
+>>>>>>>> 80f3a9773694f75933c3cda3f842e22d6f24acde:vue-study2/package.json
+>>>>>>> 80f3a9773694f75933c3cda3f842e22d6f24acde
     "vue": "^3.4.21"
   },
   "devDependencies": {
