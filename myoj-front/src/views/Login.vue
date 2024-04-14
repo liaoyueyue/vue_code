@@ -5,9 +5,13 @@ import { User, Lock, Unlock, Right, Message } from "@element-plus/icons-vue";
 import { userRegisterService, userLoginService } from "@/api/user.js";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
+import { useTokenStore } from "@/stores/token";
 
-//路由
+// 路由
 const router = useRouter();
+
+// token存贮
+const tokenStore = useTokenStore();
 
 // 登录注册表单切换
 const activeTab = ref("login");
@@ -32,7 +36,12 @@ const loginForm = reactive<LoginForm>({
 const loginRules = reactive<FormRules<LoginForm>>({
   account: [
     { required: true, message: "请输入邮箱或者用户名", trigger: "blur" },
-    { min: 2, max: 25, message: "邮箱或者用户名长度不符合规则", trigger: "blur" },
+    {
+      min: 2,
+      max: 25,
+      message: "邮箱或者用户名长度不符合规则",
+      trigger: "blur",
+    },
   ],
   password: [
     { required: true, message: "请输入密码", trigger: "blur" },
@@ -52,6 +61,8 @@ const login = async (formEl: FormInstance | undefined) => {
       let result = await userLoginService(loginForm);
       if (result.code === 0) {
         ElMessage.success("登录成功");
+        // 把得到的token存入pinia
+        tokenStore.setToken(result.data);
         router.push("/");
       } else {
         ElMessage.error("登录失败，请检查账号或者密码");

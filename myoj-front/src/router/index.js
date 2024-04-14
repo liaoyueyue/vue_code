@@ -4,11 +4,29 @@ import LoginView from "@/views/Login.vue";
 import ManageView from "@/views/Manage.vue";
 import TempView from "@/views/Temp.vue";
 
+import ProblemCollection from "@/views/problem/ProblemCollection.vue";
+import ProblemManage from "@/views/problem/ProblemManage.vue";
+import UserAvater from "@/views/user/UserAvater.vue";
+import UserInfo from "@/views/user/UserInfo.vue";
+import UserUpdatePwd from "@/views/user/UserUpdatePwd.vue";
+import Developing from "@/views/template/developing.vue";
+
 // 2. 定义路由
 const routes = [
   { path: "/login", component: LoginView },
-  { path: "/", component: ManageView },
-  { path: "/manage", component: ManageView },
+  {
+    path: "/",
+    component: ManageView,
+    redirect: "/problem/manage",
+    children: [
+      { path: "problem/collection", component: ProblemCollection },
+      { path: "problem/manage", component: ProblemManage },
+      { path: "user/avater", component: UserAvater },
+      { path: "user/info", component: UserInfo },
+      { path: "user/updatePwd", component: UserUpdatePwd },
+      { path: "developing", component: Developing },
+    ],
+  },
   { path: "/temp", component: TempView },
 ];
 
