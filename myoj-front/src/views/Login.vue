@@ -4,6 +4,10 @@ import type { FormInstance, FormRules } from "element-plus";
 import { User, Lock, Unlock, Right, Message } from "@element-plus/icons-vue";
 import { userRegisterService, userLoginService } from "@/api/user.js";
 import { ElMessage } from "element-plus";
+import { useRouter } from "vue-router";
+
+//路由
+const router = useRouter();
 
 // 登录注册表单切换
 const activeTab = ref("login");
@@ -28,8 +32,12 @@ const loginForm = reactive<LoginForm>({
 const loginRules = reactive<FormRules<LoginForm>>({
   account: [
     { required: true, message: "请输入邮箱或者用户名", trigger: "blur" },
+    { min: 2, max: 25, message: "邮箱或者用户名长度不符合规则", trigger: "blur" },
   ],
-  password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+  password: [
+    { required: true, message: "请输入密码", trigger: "blur" },
+    { min: 6, max: 16, message: "密码长度不符合规则", trigger: "blur" },
+  ],
   captcha: [
     { required: true, message: "请输入验证码", trigger: "blur" },
     { min: 4, max: 6, message: "验证码长度不符合规则", trigger: "blur" },
@@ -43,10 +51,8 @@ const login = async (formEl: FormInstance | undefined) => {
     if (valid) {
       let result = await userLoginService(loginForm);
       if (result.code === 0) {
-        ElMessage({
-          message: "登录成功",
-          type: "success",
-        });
+        ElMessage.success("登录成功");
+        router.push("/");
       } else {
         ElMessage.error("登录失败，请检查账号或者密码");
       }
@@ -102,10 +108,7 @@ const register = async (formEl: FormInstance | undefined) => {
     if (valid) {
       let result = await userRegisterService(registerForm);
       if (result.code === 0) {
-        ElMessage({
-          message: "注册成功",
-          type: "success",
-        });
+        ElMessage.success("注册成功");
       } else {
         ElMessage.error("注册失败请稍后重试");
       }
