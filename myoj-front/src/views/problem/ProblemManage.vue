@@ -31,24 +31,20 @@ const onResetting = () => {
 
 const tableData = ref([
   {
-    title: "两数之和",
-    collection: "Java基础训练",
-    createTime: "2024-04-06",
-    level: "简单",
-  },
-  {
-    title: "两数之和",
-    collection: "Java基础训练",
-    createTime: "2024-04-06",
-    level: "简单",
-  },
+    id: "-1",
+    title: "请联系网站管理员",
+    collection: "null",
+    createTime: "null",
+    level: "null",
+  }
 ]);
 
 // 导入数据
-import {problemListService} from "@/api/problem"
-const getProblemList = async() => {
-  let result = await problemListService(currentPage, pageSize);
-  tableData.value = result.data;
+import { problemListService } from "@/api/problem"
+const getProblemList = async () => {
+  let result = await problemListService(currentPage.value, pageSize.value);
+  tableData.value = result.data.items;
+  total.value = result.data.total;
 }
 getProblemList();
 </script>
@@ -59,7 +55,8 @@ getProblemList();
       <span>题目管理</span>
       <el-button type="primary">添加题目</el-button>
     </div>
-    <hr style="margin-top: 20px;"></hr>
+    <hr style="margin-top: 20px;">
+    </hr>
     <el-form :inline="true" :model="formInline" class="demo-form-inline">
       <el-form-item label="题目合集">
         <el-input v-model="formInline.search" placeholder="请输入" clearable />
@@ -79,7 +76,8 @@ getProblemList();
       </el-form-item>
     </el-form>
     <el-table :data="tableData" style="width: 100%">
-      <el-table-column prop="title" label="题目标题" />
+      <el-table-column prop="id" label="编号" />
+      <el-table-column prop="title" label="标题" />
       <el-table-column prop="collection" label="合集名称" />
       <el-table-column prop="createTime" label="创建时间" />
       <el-table-column prop="level" label="等级" />
@@ -90,19 +88,10 @@ getProblemList();
         </el-row>
       </el-table-column>
     </el-table>
-    <el-pagination
-      class="el-p"
-      v-model:current-page="currentPage"
-      v-model:page-size="pageSize"
-      :page-sizes="[5, 10, 15, 20]"
-      :small="small"
-      :disabled="disabled"
-      :background="background"
-      layout="jumper, total, sizes, prev, pager, next"
-      :total="total"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-    />
+    <el-pagination class="el-p" v-model:current-page="currentPage" v-model:page-size="pageSize"
+      :page-sizes="[5, 10, 15, 20]" :small="small" :disabled="disabled" :background="background"
+      layout="jumper, total, sizes, prev, pager, next" :total="total" @size-change="handleSizeChange"
+      @current-change="handleCurrentChange" />
   </el-card>
 </template>
 

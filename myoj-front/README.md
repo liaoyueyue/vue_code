@@ -25,3 +25,9 @@ npm install sass -D
 ```bash
 npm install Pinia
 ```
+
+5. Persist - Persist 插件可以将 Pinia 的数据持久化存储
+
+```bash
+npm install pinia-persistedstate-plugin
+```
