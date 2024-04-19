@@ -33,7 +33,7 @@ const handleClose = (key: string, keyPath: string[]) => {
           <el-radio-button :value="true">折叠</el-radio-button>
         </el-radio-group>
         <el-menu
-          default-active="2"
+          default-active="3"
           class="el-menu-vertical-demo"
           :collapse="isCollapse"
           @open="handleOpen"

@@ -15,29 +15,21 @@ const formInline = reactive({
 });
 
 const handleSizeChange = (val: number) => {
-  console.log(`${val} items per page`);
+  getProblemList();
 };
 const handleCurrentChange = (val: number) => {
-  console.log(`current page: ${val}`);
+  getProblemList();
 };
 
 const onSubmit = () => {
-  console.log("submit!");
+  getProblemList();
 };
 
 const onResetting = () => {
   console.log("reseting!");
 };
 
-const tableData = ref([
-  {
-    id: "-1",
-    title: "请联系网站管理员",
-    collection: "null",
-    createTime: "null",
-    level: "null",
-  }
-]);
+const tableData = ref();
 
 // 导入数据
 import { problemListService } from "@/api/problem"

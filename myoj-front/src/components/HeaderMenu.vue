@@ -25,8 +25,8 @@ const handleSelect = (key: string, keyPath: string[]) => {
     <el-menu-item index="0">
       <img
         style="width: 100px"
-        src="https://element-plus.org/images/element-plus-logo.svg"
-        alt="Element logo"
+        src="@/assets/images/logo.svg"
+        alt="logo"
       />
     </el-menu-item>
     <div class="flex-grow" />
@@ -70,6 +70,6 @@ const handleSelect = (key: string, keyPath: string[]) => {
   align-items: center;
 }
 :deep(.el-tooltip__trigger:focus-visible) {
-      outline: unset;
-    }
+  outline: unset;
+}
 </style>
