@@ -59,14 +59,10 @@ const login = async (formEl: FormInstance | undefined) => {
   await formEl.validate(async (valid, fields) => {
     if (valid) {
       let result = await userLoginService(loginForm);
-      if (result.code === 0) {
-        ElMessage.success("登录成功");
-        // 把得到的token存入pinia
-        tokenStore.setToken(result.data);
-        router.push("/");
-      } else {
-        ElMessage.error("登录失败，请检查账号或者密码");
-      }
+      ElMessage.success("登录成功");
+      // 把得到的token存入pinia
+      tokenStore.setToken(result.data);
+      router.push("/");
     }
   });
 };
@@ -118,11 +114,7 @@ const register = async (formEl: FormInstance | undefined) => {
   await formEl.validate(async (valid, fields) => {
     if (valid) {
       let result = await userRegisterService(registerForm);
-      if (result.code === 0) {
-        ElMessage.success("注册成功");
-      } else {
-        ElMessage.error("注册失败请稍后重试");
-      }
+      ElMessage.success("注册成功 | " + result.data);
     }
   });
 };

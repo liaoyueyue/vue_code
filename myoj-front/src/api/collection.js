@@ -6,9 +6,19 @@ export const collectionListService = (
   pageSize,
   collectionName
 ) => {
+  const conditionData = {
+    pageNum: currentPage,
+    pageSize: pageSize,
+    collectionName: collectionName,
+  };
+  return request.get("/collection/list", { params: conditionData });
+};
+
+// 题目合集添加
+export const addCollectionService = (collectionData) => {
   const params = new URLSearchParams();
-  params.append("pageNum", currentPage);
-  params.append("pageSize", pageSize);
-  params.append("collectionName", collectionName);
-  return request.get("/collection/list", { params: params });
+  for (let key in collectionData) {
+    params.append(key, collectionData[key]);
+  }
+  return request.post("/collection/add", params);
 };

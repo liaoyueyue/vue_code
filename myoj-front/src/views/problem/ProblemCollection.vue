@@ -1,16 +1,18 @@
 <script lang="ts" setup>
 import { ref, reactive } from "vue";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import { Delete, Edit } from "@element-plus/icons-vue";
+import type { FormInstance, FormRules } from "element-plus";
 
+// # 题目合集表格
 const currentPage = ref(1);
-const pageSize = ref(5);
+const pageSize = ref(10);
 const small = ref(false);
 const background = ref(false);
 const disabled = ref(false);
 const total = ref(20);
 
-const formInline = reactive({
+const searchForm = reactive({
   search: ""
 });
 
@@ -33,27 +35,66 @@ const onResetting = () => {
 
 const tableData = ref();
 
-// 导入数据
+// 导入题目合集表格数据
 import { collectionListService } from "@/api/collection"
 const getcollectionList = async () => {
-  let result = await collectionListService(currentPage.value, pageSize.value, formInline.search);
+  let result = await collectionListService(currentPage.value, pageSize.value, searchForm.search);
   tableData.value = result.data.items;
   total.value = result.data.total;
 }
 getcollectionList();
+
+// # 添加题目合集添加弹窗
+const dialogVisible = ref(false);
+
+// 添加合集表单数据和验证规则
+interface AddCollectionForm {
+  name: string;
+  description: string;
+}
+
+const addCollectionFormRef = ref<FormInstance>();
+const addCollectionForm = reactive<AddCollectionForm>({
+  name: "",
+  description: ""
+});
+
+const loginRules = reactive<FormRules<AddCollectionForm>>({
+  name: [
+    { required: true, message: "请输入需要添加合集的名称", trigger: "blur" }
+  ],
+  description: [
+    { required: true, message: "请输入需要添加合集的描述", trigger: "blur" }
+  ]
+});
+
+// 添加合集函数
+import { addCollectionService } from "@/api/collection";
+const addCollection = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  await formEl.validate(async (valid, fields) => {
+    if (valid) {
+      let result = await addCollectionService(addCollectionForm);
+      ElMessage.success("添加成功");
+      // 刷新表格
+      getcollectionList();
+      dialogVisible.value = false;
+    }
+  });
+};
 </script>
 
 <template>
   <el-card>
     <div class="card-header">
       <span>题目合集管理</span>
-      <el-button type="primary">添加题目合集</el-button>
+      <el-button type="primary" @click="dialogVisible = true">添加题目合集</el-button>
     </div>
     <hr style="margin-top: 20px;">
     </hr>
-    <el-form :inline="true" :model="formInline" class="demo-form-inline">
+    <el-form :inline="true" :model="searchForm" class="demo-form-inline">
       <el-form-item label="题目合集">
-        <el-input v-model="formInline.search" placeholder="请输入" clearable />
+        <el-input v-model="searchForm.search" placeholder="请输入" clearable />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onSubmit">搜索</el-button>
@@ -80,6 +121,25 @@ getcollectionList();
       layout="jumper, total, sizes, prev, pager, next" :total="total" @size-change="handleSizeChange"
       @current-change="handleCurrentChange" />
   </el-card>
+  <!-- 添加弹窗 -->
+  <el-dialog v-model="dialogVisible" title="添加合集" width="500">
+    <!-- 添加合集表单 -->
+    <el-form ref="addCollectionFormRef" :model="addCollectionForm" :rules="loginRules" class="addCollection-form"
+      label-width="auto" style="max-width: 600px">
+      <el-form-item label="合集名称" prop="name">
+        <el-input v-model="addCollectionForm.name" placeholder="请输入合集名称" />
+      </el-form-item>
+      <el-form-item label="合集描述" prop="description">
+        <el-input v-model="addCollectionForm.description" placeholder="请输入合集描述" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="addCollection(addCollectionFormRef)">确认</el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <style scoped>

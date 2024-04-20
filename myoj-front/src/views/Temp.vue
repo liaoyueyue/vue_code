@@ -1,58 +1,90 @@
-<template>
-  <el-menu
-    default-active="2"
-    class="el-menu-vertical-demo"
-    router
-  >
-    <el-sub-menu index="1">
-      <template #title>
-        <el-icon><User /></el-icon>
-        <span>个人中心</span>
-      </template>
-      <el-menu-item-group title="个人信息">
-        <el-menu-item index="/user/info">
-          <el-icon><User /></el-icon>
-          <span>基本资料</span>
-        </el-menu-item>
-        <el-menu-item index="1-2">
-          <el-icon><Edit /></el-icon>
-          <span>更改密码</span>
-        </el-menu-item>
-        <el-menu-item index="1-3">
-          <el-icon><Crop /></el-icon>
-          <span>更换头像</span>
-        </el-menu-item>
-      </el-menu-item-group>
-      <el-menu-item-group title="其他信息">
-        <el-sub-menu index="1-4">
-          <template #title>第三方信息</template>
-          <el-menu-item index="1-4-1">其他</el-menu-item>
-        </el-sub-menu>
-      </el-menu-item-group>
-    </el-sub-menu>
-    <el-menu-item index="2">
-      <el-icon><document /></el-icon>
-      <span>题目管理</span>
-    </el-menu-item>
-    <el-menu-item index="3">
-      <el-icon><Collection /></el-icon>
-      <span>题目合集管理</span>
-    </el-menu-item>
-    <el-menu-item index="4">
-      <el-icon><setting /></el-icon>
-      <span>设置</span>
-    </el-menu-item>
-  </el-menu>
-</template>
-
 <script lang="ts" setup>
-import { ArrowDown } from "@element-plus/icons-vue";
+import { reactive, ref } from "vue";
+import type { FormInstance, FormRules } from "element-plus";
+import { User, Lock, Unlock, Right, Message } from "@element-plus/icons-vue";
+
+const formSize = ref("large");
+// 登录表单数据和验证规则
+interface LoginForm {
+  account: string;
+  password: string;
+}
+
+const loginFormRef = ref<FormInstance>();
+const loginForm = reactive<LoginForm>({
+  account: "",
+  password: "",
+});
+
+const loginRules = reactive<FormRules<LoginForm>>({
+  account: [
+    { required: true, message: "请输入邮箱或者用户名", trigger: "blur" },
+    {
+      min: 2,
+      max: 25,
+      message: "邮箱或者用户名长度不符合规则",
+      trigger: "blur",
+    },
+  ],
+  password: [
+    { required: true, message: "请输入密码", trigger: "blur" },
+    { min: 6, max: 16, message: "密码长度不符合规则", trigger: "blur" },
+  ],
+});
+
+// 登录函数
+const login = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  await formEl.validate(async (valid, fields) => {
+    if (valid) {
+      // 登录请求
+    }
+  });
+};
 </script>
+<template>
+  <el-card>
+    <!-- 登录表单 -->
+    <h2>登录</h2>
+    <el-form
+      ref="loginFormRef"
+      :model="loginForm"
+      :rules="loginRules"
+      class="login-form"
+      :size="formSize"
+      hide-required-asterisk="false"
+      style="width: 360px"
+    >
+      <el-form-item prop="account">
+        <el-input
+          v-model="loginForm.account"
+          placeholder="请输入邮箱或者用户名"
+          :prefix-icon="User"
+        ></el-input>
+      </el-form-item>
+      <el-form-item prop="password">
+        <el-input
+          v-model="loginForm.password"
+          placeholder="请输入密码"
+          show-password
+          :prefix-icon="Lock"
+        ></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-button
+          type="primary"
+          @click="login(loginFormRef)"
+          style="width: 100%"
+          >登录</el-button
+        >
+      </el-form-item>
+    </el-form>
+  </el-card>
+</template>
 <style scoped>
-.example-showcase .el-dropdown-link {
+.captcha-image {
   cursor: pointer;
-  color: var(--el-color-primary);
-  display: flex;
-  align-items: center;
+  margin-left: 10px;
+  vertical-align: middle;
 }
 </style>
