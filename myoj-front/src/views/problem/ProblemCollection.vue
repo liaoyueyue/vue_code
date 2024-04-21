@@ -44,22 +44,41 @@ const getcollectionList = async () => {
 }
 getcollectionList();
 
-// # 添加题目合集添加弹窗
+// # 题目合集添加弹窗与编辑弹窗
+import { addCollectionService, updateCollectionService } from "@/api/collection";
 const dialogVisible = ref(false);
+const dialogTitle = ref("");
 
-// 添加合集表单数据和验证规则
-interface AddCollectionForm {
+// 显示添加弹窗
+const showAddDialog = () => {
+  dialogTitle.value = '添加合集';
+  clearCollectionForm();
+  dialogVisible.value = true;
+}
+
+// 显示编辑弹窗
+const showEditDialog = (row) => {
+  dialogTitle.value = '编辑合集';
+  collectionForm.name = row.name;
+  collectionForm.description = row.description;
+  collectionForm.id = row.id;
+  dialogVisible.value = true;
+}
+
+// # 添加合集表单数据和验证规则
+interface CollectionForm {
+  id?: number; // 添加一个可选的 id 属性
   name: string;
   description: string;
 }
 
-const addCollectionFormRef = ref<FormInstance>();
-const addCollectionForm = reactive<AddCollectionForm>({
+const collectionFormRef = ref<FormInstance>();
+const collectionForm = reactive<CollectionForm>({
   name: "",
   description: ""
 });
 
-const loginRules = reactive<FormRules<AddCollectionForm>>({
+const collectionRules = reactive<FormRules<CollectionForm>>({
   name: [
     { required: true, message: "请输入需要添加合集的名称", trigger: "blur" }
   ],
@@ -68,16 +87,32 @@ const loginRules = reactive<FormRules<AddCollectionForm>>({
   ]
 });
 
+// 清空合集表单数据函数
+const clearCollectionForm = () => {
+  collectionForm.name = "";
+  collectionForm.description = "";
+}
+
 // 添加合集函数
-import { addCollectionService } from "@/api/collection";
 const addCollection = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   await formEl.validate(async (valid, fields) => {
     if (valid) {
-      let result = await addCollectionService(addCollectionForm);
+      let result = await addCollectionService(collectionForm);
       ElMessage.success("添加成功");
-      // 刷新表格
-      getcollectionList();
+      getcollectionList();// 刷新表格
+      dialogVisible.value = false;
+    }
+  });
+};
+// 编辑合集函数
+const editCollection = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  await formEl.validate(async (valid, fields) => {
+    if (valid) {
+      let result = await updateCollectionService(collectionForm);
+      ElMessage.success("修改成功");
+      getcollectionList();// 刷新表格
       dialogVisible.value = false;
     }
   });
@@ -88,7 +123,7 @@ const addCollection = async (formEl: FormInstance | undefined) => {
   <el-card>
     <div class="card-header">
       <span>题目合集管理</span>
-      <el-button type="primary" @click="dialogVisible = true">添加题目合集</el-button>
+      <el-button type="primary" @click="showAddDialog">添加题目合集</el-button>
     </div>
     <hr style="margin-top: 20px;">
     </hr>
@@ -110,11 +145,16 @@ const addCollection = async (formEl: FormInstance | undefined) => {
       <el-table-column prop="createTime" label="创建时间" />
       <el-table-column prop="updateTime" label="更新时间" />
       <el-table-column prop="operation" label="操作" width="180">
-        <el-row>
-          <el-button type="primary" :icon="Edit" circle />
-          <el-button type="danger" :icon="Delete" circle />
-        </el-row>
+        <template #default="{ row }">
+          <el-row>
+            <el-button type="primary" :icon="Edit" circle @click="showEditDialog(row)"/>
+            <el-button type="danger" :icon="Delete" circle />
+          </el-row>
+        </template>
       </el-table-column>
+      <template #empty>
+        <el-empty description="没有数据" />
+      </template>
     </el-table>
     <el-pagination class="el-p" v-model:current-page="currentPage" v-model:page-size="pageSize"
       :page-sizes="[5, 10, 15, 20]" :small="small" :disabled="disabled" :background="background"
@@ -122,21 +162,22 @@ const addCollection = async (formEl: FormInstance | undefined) => {
       @current-change="handleCurrentChange" />
   </el-card>
   <!-- 添加弹窗 -->
-  <el-dialog v-model="dialogVisible" title="添加合集" width="500">
-    <!-- 添加合集表单 -->
-    <el-form ref="addCollectionFormRef" :model="addCollectionForm" :rules="loginRules" class="addCollection-form"
+  <el-dialog v-model="dialogVisible" :title="dialogTitle" width="500">
+    <!-- 添加编辑合集表单 -->
+    <el-form ref="collectionFormRef" :model="collectionForm" :rules="collectionRules" class="addCollection-form"
       label-width="auto" style="max-width: 600px">
       <el-form-item label="合集名称" prop="name">
-        <el-input v-model="addCollectionForm.name" placeholder="请输入合集名称" />
+        <el-input v-model="collectionForm.name" placeholder="请输入合集名称" />
       </el-form-item>
       <el-form-item label="合集描述" prop="description">
-        <el-input v-model="addCollectionForm.description" placeholder="请输入合集描述" />
+        <el-input v-model="collectionForm.description" placeholder="请输入合集描述" />
       </el-form-item>
     </el-form>
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="addCollection(addCollectionFormRef)">确认</el-button>
+        <el-button type="primary" v-show="dialogTitle=='添加合集'" @click="addCollection(collectionFormRef)">确认</el-button>
+        <el-button type="primary" v-show="dialogTitle=='编辑合集'" @click="editCollection(collectionFormRef)">确认</el-button>
       </div>
     </template>
   </el-dialog>

@@ -16,9 +16,10 @@ export const collectionListService = (
 
 // 题目合集添加
 export const addCollectionService = (collectionData) => {
-  const params = new URLSearchParams();
-  for (let key in collectionData) {
-    params.append(key, collectionData[key]);
-  }
-  return request.post("/collection/add", params);
+  return request.post("/collection/add", collectionData);
+};
+
+// 题目合集编辑
+export const updateCollectionService = (collectionData) => {
+  return request.post("/collection/update", collectionData);
 };
