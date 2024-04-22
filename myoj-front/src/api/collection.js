@@ -6,11 +6,19 @@ export const collectionListService = (
   pageSize,
   collectionName
 ) => {
-  const conditionData = {
-    pageNum: currentPage,
-    pageSize: pageSize,
-    collectionName: collectionName,
-  };
+  let conditionData = null;
+  if (collectionName == "") {
+    conditionData = {
+      pageNum: currentPage,
+      pageSize: pageSize,
+    };
+  } else {
+    conditionData = {
+      pageNum: currentPage,
+      pageSize: pageSize,
+      collectionName: collectionName,
+    };
+  }
   return request.get("/collection/list", { params: conditionData });
 };
 
@@ -21,5 +29,10 @@ export const addCollectionService = (collectionData) => {
 
 // 题目合集编辑
 export const updateCollectionService = (collectionData) => {
-  return request.post("/collection/update", collectionData);
+  return request.put("/collection/update", collectionData);
+};
+
+// 题目合集删除
+export const deleteCollectionService = (id) => {
+  return request.delete("/collection/delete?id=" + id);
 };

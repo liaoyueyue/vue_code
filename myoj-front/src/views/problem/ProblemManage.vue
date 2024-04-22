@@ -50,10 +50,10 @@ getProblemList();
     <hr style="margin-top: 20px;">
     </hr>
     <el-form :inline="true" :model="formInline" class="demo-form-inline">
-      <el-form-item label="题目合集">
+      <el-form-item label="合集名称">
         <el-input v-model="formInline.search" placeholder="请输入" clearable />
       </el-form-item>
-      <el-form-item label="题目等级">
+      <el-form-item label="等级">
         <el-select v-model="formInline.level" placeholder="请选择" clearable>
           <el-option label="简单" value="Easy" />
           <el-option label="中等" value="Medium" />
@@ -71,7 +71,7 @@ getProblemList();
       <el-table-column prop="id" label="编号" />
       <el-table-column prop="title" label="标题" />
       <el-table-column prop="collection" label="合集名称" />
-      <el-table-column prop="createTime" label="创建时间" />
+      <el-table-column prop="createTime" label="更新时间" />
       <el-table-column prop="level" label="等级" />
       <el-table-column prop="operation" label="操作" width="180">
         <el-row>
