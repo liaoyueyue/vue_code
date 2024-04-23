@@ -10,10 +10,10 @@ const pageSize = ref(10);
 const small = ref(false);
 const background = ref(false);
 const disabled = ref(false);
-const total = ref(20);
+const total = ref();
 
 const searchForm = reactive({
-  search: "",
+  collectionName: "",
 });
 
 const handleSizeChange = (val: number) => {
@@ -30,7 +30,7 @@ const onSubmit = () => {
 };
 
 const onResetting = () => {
-  searchForm.search = "";
+  searchForm.collectionName = "";
   getcollectionList();
   ElMessage.success("重置成功");
 };
@@ -43,14 +43,14 @@ const getcollectionList = async () => {
   let result = await collectionListService(
     currentPage.value,
     pageSize.value,
-    searchForm.search
+    searchForm
   );
   tableData.value = result.data.items;
   total.value = result.data.total;
 };
 getcollectionList();
 
-// # 题目合集添加弹窗 & 编辑弹窗 & 确认删除弹框
+// # 题目合集 添加弹窗 & 编辑弹窗 & 确认删除弹框
 import {
   addCollectionService,
   updateCollectionService,
@@ -154,13 +154,17 @@ const deleteCollection = (row) => {
 <template>
   <el-card>
     <div class="card-header">
-      <span>题目合集管理</span>
+      <span style="font-size: larger; font-weight: bold">题目合集管理</span>
       <el-button type="primary" @click="showAddDialog">添加题目合集</el-button>
     </div>
     <hr style="margin-top: 20px" />
     <el-form :inline="true" :model="searchForm" class="demo-form-inline">
-      <el-form-item label="合集名">
-        <el-input v-model="searchForm.search" placeholder="请输入" clearable />
+      <el-form-item label="合集名称">
+        <el-input
+          v-model="searchForm.collectionName"
+          placeholder="请输入"
+          clearable
+        />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onSubmit">搜索</el-button>
@@ -171,7 +175,7 @@ const deleteCollection = (row) => {
     </el-form>
     <el-table :data="tableData" style="width: 100%">
       <el-table-column prop="id" label="编号" />
-      <el-table-column prop="name" label="合集名" />
+      <el-table-column prop="name" label="合集名称" />
       <el-table-column prop="description" label="描述" />
       <el-table-column prop="createTime" label="创建时间" />
       <el-table-column prop="updateTime" label="更新时间" />

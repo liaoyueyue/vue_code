@@ -1,24 +1,12 @@
 import request from "@/utils/request.js";
 
 // 题目合集列表查询
-export const collectionListService = (
-  currentPage,
-  pageSize,
-  collectionName
-) => {
-  let conditionData = null;
-  if (collectionName == "") {
-    conditionData = {
-      pageNum: currentPage,
-      pageSize: pageSize,
-    };
-  } else {
-    conditionData = {
-      pageNum: currentPage,
-      pageSize: pageSize,
-      collectionName: collectionName,
-    };
-  }
+export const collectionListService = (currentPage, pageSize, searchForm) => {
+  let conditionData = {
+    pageNum: currentPage,
+    pageSize: pageSize,
+    collectionName: searchForm.collectionName,
+  };;
   return request.get("/collection/list", { params: conditionData });
 };
 
