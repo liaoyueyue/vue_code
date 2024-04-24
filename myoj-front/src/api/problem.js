@@ -10,3 +10,8 @@ export const problemListService = (currentPage, pageSize, searchForm) => {
   };
   return request.get("/problem/list", { params: conditionData });
 };
+
+// 添加题目
+export const addProblemService = (problemData) => {
+  return request.post("/problem/add", problemData); 
+}

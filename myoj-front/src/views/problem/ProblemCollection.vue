@@ -51,11 +51,6 @@ const getcollectionList = async () => {
 getcollectionList();
 
 // # 题目合集 添加弹窗 & 编辑弹窗 & 确认删除弹框
-import {
-  addCollectionService,
-  updateCollectionService,
-  deleteCollectionService,
-} from "@/api/collection";
 const dialogVisible = ref(false);
 const dialogTitle = ref("");
 
@@ -103,6 +98,11 @@ const clearCollectionForm = () => {
   collectionForm.description = "";
 };
 
+import {
+  addCollectionService,
+  updateCollectionService,
+  deleteCollectionService,
+} from "@/api/collection";
 // 添加合集函数
 const addCollection = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;

@@ -31,3 +31,9 @@ npm install Pinia
 ```bash
 npm install pinia-persistedstate-plugin
 ```
+
+5. Quill - Quill是一个跨平台的功能强大的富文本编辑器
+
+```bash
+npm install @vueup/vue-quill@latest --save
+```

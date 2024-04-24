@@ -53,13 +53,103 @@ const getProblemList = async () => {
 getProblemList();
 
 // # 题目 添加抽屉 & 编辑抽屉 & 确认删除弹框
+import type { DrawerProps } from "element-plus";
+
+const addProblemDrawer = ref(false);
+const direction = ref<DrawerProps["direction"]>("rtl");
+const handleClose = (done: () => void) => {
+  ElMessageBox.confirm("你确定要关闭吗？")
+    .then(() => {
+      done();
+    })
+    .catch(() => {
+      // catch error
+    });
+};
+
+// # 题目添加表单
+interface ProblemForm {
+  title: string;
+  level: string;
+  collectionId: number;
+  description: string;
+  templateCode: string;
+  testCode: string;
+}
+const problemFormRef = ref<FormInstance>();
+const problemForm = reactive<ProblemForm>({
+  title: "",
+  level: "",
+  collectionId: null,
+  description: "",
+  templateCode: "",
+  testCode: "",
+});
+const problemRules = reactive<FormRules<ProblemForm>>({
+  title: [
+    { required: true, message: "请输入需要添加题目的标题", trigger: "blur" },
+  ],
+  level: [{ required: true, message: "请选择有效的题目等级", trigger: "blur" }],
+  collectionId: [
+    {
+      required: true,
+      message: "请输入需要添加题目的合集编号",
+      trigger: "blur",
+    },
+  ],
+  description: [
+    { required: true, message: "请输入需要添加题目的描述", trigger: "blur" },
+  ],
+  templateCode: [
+    {
+      required: true,
+      message: "请输入需要添加题目的模板代码",
+      trigger: "blur",
+    },
+  ],
+  testCode: [
+    {
+      required: true,
+      message: "请输入需要添加题目的测试代码",
+      trigger: "blur",
+    },
+  ],
+});
+// 清空题目表单数据函数
+const clearProblemForm = () => {
+  problemForm.title = "";
+  problemForm.level = "";
+  problemForm.collectionId = null;
+  problemForm.templateCode = "";
+  problemForm.testCode = "";
+};
+
+import { addProblemService } from "@/api/problem";
+// 添加题目函数
+const addProblem = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  await formEl.validate(async (valid, fields) => {
+    if (valid) {
+      let result = await addProblemService(problemForm);
+      ElMessage.success("添加成功");
+      getProblemList(); // 刷新表格
+      addProblemDrawer.value = false; // 关闭抽屉
+    }
+  });
+};
+
+// # Quill 富文本编辑器
+import { QuillEditor } from "@vueup/vue-quill";
+import "@vueup/vue-quill/dist/vue-quill.snow.css";
 </script>
 
 <template>
   <el-card>
     <div class="card-header">
       <span style="font-size: larger; font-weight: bold">题目管理</span>
-      <el-button type="primary">添加题目</el-button>
+      <el-button type="primary" @click="addProblemDrawer = true"
+        >添加题目</el-button
+      >
     </div>
     <hr style="margin-top: 20px" />
     <el-form :inline="true" :model="searchForm" class="demo-form-inline">
@@ -111,6 +201,69 @@ getProblemList();
       @current-change="handleCurrentChange"
     />
   </el-card>
+  <!-- 添加题目抽屉 -->
+  <el-drawer
+    v-model="addProblemDrawer"
+    title="添加题目"
+    size="40%"
+    :direction="direction"
+    :before-close="handleClose"
+  >
+    <!-- 题目表单 -->
+    <el-form
+      ref="problemFormRef"
+      style="max-width: 600px"
+      :model="problemForm"
+      :rules="problemRules"
+      label-width="auto"
+      class="demo-ruleForm"
+      size="large"
+      status-icon
+    >
+      <el-form-item label="标题" prop="title">
+        <el-input v-model="problemForm.title" placeholder="请输入题目的标题" />
+      </el-form-item>
+      <el-form-item label="等级" prop="level">
+        <el-select v-model="problemForm.level" placeholder="请选择题目的等级">
+          <el-option label="简单" value="简单" />
+          <el-option label="中等" value="中等" />
+          <el-option label="困难" value="困难" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="合集编号" prop="collectionId">
+        <el-input
+          v-model="problemForm.collectionId"
+          placeholder="请输入题目的合集编号"
+        />
+      </el-form-item>
+      <el-form-item label="描述" prop="description">
+        <el-input
+          v-model="problemForm.description"
+          placeholder="请输入题目的描述"
+        />
+        <div class="editor">
+          <quill-editor
+            theme="snow"
+            v-model:content="problemForm.description"
+            content-type="html"
+          >
+          </quill-editor>
+        </div>
+      </el-form-item>
+      <el-form-item label="模板代码" prop="templateCode">
+        <el-input
+          v-model="problemForm.templateCode"
+          placeholder="请输入题目的模板代码"
+        />
+      </el-form-item>
+      <el-form-item label="测试代码" prop="testCode">
+        <el-input
+          v-model="problemForm.testCode"
+          placeholder="请输入题目的测试代码"
+        />
+      </el-form-item>
+    </el-form>
+  </el-drawer>
 </template>
 
 <style scoped>
@@ -131,5 +284,12 @@ getProblemList();
 .card-header {
   display: flex;
   justify-content: space-between;
+}
+
+.editor {
+  width: 100%;
+  :deep(.ql-editor) {
+    min-height: 200px;
+  }
 }
 </style>
