@@ -32,8 +32,9 @@ npm install Pinia
 npm install pinia-persistedstate-plugin
 ```
 
-5. Quill - Quill是一个跨平台的功能强大的富文本编辑器
+6. wangEditor - wangEditor 开源 Web 富文本编辑器，开箱即用，配置简单
 
-```bash
-npm install @vueup/vue-quill@latest --save
+```bash 
+npm install @wangeditor/editor --save
+npm install @wangeditor/editor-for-vue@next --save
 ```
