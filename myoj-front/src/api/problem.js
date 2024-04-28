@@ -15,3 +15,13 @@ export const problemListService = (currentPage, pageSize, searchForm) => {
 export const addProblemService = (problemData) => {
   return request.post("/problem/add", problemData); 
 }
+
+// 编辑题目
+export const updateProblemService = (problemData) => {
+  return request.post("/problem/update", problemData);
+}
+
+// 删除题目
+export const deleteProblemService = (id) => {
+  return request.post("/problem/delete?id=" + id);
+}

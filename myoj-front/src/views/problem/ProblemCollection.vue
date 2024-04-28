@@ -50,7 +50,7 @@ const getcollectionList = async () => {
 };
 getcollectionList();
 
-// # 题目合集 添加弹窗 & 编辑弹窗 & 确认删除弹框
+// # 弹窗 题目合集
 const dialogVisible = ref(false);
 const dialogTitle = ref("");
 

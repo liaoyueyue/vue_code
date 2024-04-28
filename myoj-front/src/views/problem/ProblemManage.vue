@@ -52,13 +52,14 @@ const getProblemList = async () => {
 };
 getProblemList();
 
-// # 题目 添加抽屉 & 编辑抽屉 & 确认删除弹框
+// # 抽屉 题目
 import type { DrawerProps } from "element-plus";
 
 const addProblemDrawer = ref(false);
+const drawerTitle = ref("");
 const direction = ref<DrawerProps["direction"]>("rtl");
 const handleClose = (done: () => void) => {
-  ElMessageBox.confirm("你确定要关闭吗？")
+  ElMessageBox.confirm("你确定要关闭吗？填写的内容将会重置！")
     .then(() => {
       clearProblemForm();
       done();
@@ -66,6 +67,25 @@ const handleClose = (done: () => void) => {
     .catch(() => {
       // catch error
     });
+};
+
+// 显示添加抽屉
+const showAddDialog = () => {
+  drawerTitle.value = "添加题目";
+  clearProblemForm();
+  addProblemDrawer.value = true;
+};
+
+// 显示编辑抽屉
+const showEditDrawer = (row) => {
+  drawerTitle.value = "编辑题目";
+  problemForm.title = row.title;
+  problemForm.level = row.level;
+  problemForm.collectionId = row.collectionId;
+  problemForm.description = row.description;
+  problemForm.templateCode = row.templateCode;
+  problemForm.testCode = row.testCode;
+  addProblemDrawer.value = true;
 };
 
 // # 题目添加表单
@@ -126,7 +146,23 @@ const clearProblemForm = () => {
   problemForm.testCode = "";
 };
 
-import { addProblemService } from "@/api/problem";
+// 题目合集Id转化整型
+const handleCollectionIdInput = (value) => {
+  // 这里确保输入始终为整数或为空（允许用户删除输入）
+  const parsedValue = parseInt(value, 10);
+  if (!isNaN(parsedValue)) {
+    problemForm.collectionId = parsedValue;
+  } else {
+    // 如果解析后的值不是数字，则清空
+    problemForm.collectionId = null;
+  }
+};
+
+import {
+  addProblemService,
+  updateProblemService,
+  deleteProblemService,
+} from "@/api/problem";
 // 添加题目函数
 const addProblem = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
@@ -135,17 +171,56 @@ const addProblem = async (formEl: FormInstance | undefined) => {
       let result = await addProblemService(problemForm);
       ElMessage.success("添加成功");
       getProblemList(); // 刷新表格
+      clearProblemForm();
       addProblemDrawer.value = false; // 关闭抽屉
     }
   });
 };
+// 编辑题目函数
+const editProblem = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  await formEl.validate(async (valid, fields) => {
+    if (valid) {
+      let result = await updateProblemService(problemForm);
+      ElMessage.success("修改成功");
+      getProblemList(); // 刷新表格
+      clearProblemForm();
+      addProblemDrawer.value = false; // 关闭抽屉
+    }
+  });
+};
+// 删除题目函数
+const deletePrblem = (row) => {
+  ElMessageBox.confirm("此操作将永久删除该合集。确认继续？", "警告", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(async () => {
+      let result = await deleteProblemService(row.id);
+      ElMessage({
+        type: "success",
+        message: "删除成功",
+      });
+      getProblemList();
+    })
+    .catch(() => {
+      ElMessage({
+        type: "info",
+        message: "取消删除",
+      });
+    });
+};
+
+// # 富文本编辑器
+import Editor from "@/components/Editor.vue";
 </script>
 
 <template>
   <el-card>
     <div class="card-header">
       <span style="font-size: larger; font-weight: bold">题目管理</span>
-      <el-button type="primary" @click="addProblemDrawer = true"
+      <el-button type="primary" @click="showAddDialog"
         >添加题目</el-button
       >
     </div>
@@ -179,10 +254,22 @@ const addProblem = async (formEl: FormInstance | undefined) => {
       <el-table-column prop="updateTime" label="更新时间" />
       <el-table-column prop="level" label="等级" />
       <el-table-column prop="operation" label="操作" width="180">
-        <el-row>
-          <el-button type="primary" :icon="Edit" circle />
-          <el-button type="danger" :icon="Delete" circle />
-        </el-row>
+        <template #default="{ row }">
+          <el-row>
+            <el-button
+              type="primary"
+              :icon="Edit"
+              circle
+              @click="showEditDrawer(row)"
+            />
+            <el-button
+              type="danger"
+              :icon="Delete"
+              circle
+              @click="deletePrblem(row)"
+            />
+          </el-row>
+        </template>
       </el-table-column>
     </el-table>
     <el-pagination
@@ -207,7 +294,7 @@ const addProblem = async (formEl: FormInstance | undefined) => {
     :before-close="handleClose"
   >
     <template #header>
-      <h3>添加题目</h3>
+      <h3>{{ drawerTitle }}</h3>
     </template>
     <template #default>
       <!-- 题目表单 -->
@@ -238,16 +325,54 @@ const addProblem = async (formEl: FormInstance | undefined) => {
           <el-input
             v-model="problemForm.collectionId"
             placeholder="请输入题目的合集编号"
+            @input="handleCollectionIdInput"
           />
         </el-form-item>
-        <el-form-item label="描述" prop="description"> </el-form-item>
-        <el-form-item label="模板代码" prop="templateCode"> </el-form-item>
-        <el-form-item label="测试代码" prop="testCode"> </el-form-item>
+        <el-form-item label="描述" prop="description">
+          <Editor
+            :textHtml="problemForm.description"
+            @getTextVal="
+              (newValue) => {
+                problemForm.description = newValue;
+              }
+            "
+          />
+        </el-form-item>
+        <el-form-item label="模板代码" prop="templateCode">
+          <Editor
+            :textHtml="problemForm.templateCode"
+            @getTextVal="
+              (newValue) => {
+                problemForm.templateCode = newValue;
+              }
+            "
+          />
+        </el-form-item>
+        <el-form-item label="测试代码" prop="testCode">
+          <Editor
+            :textHtml="problemForm.testCode"
+            @getTextVal="
+              (newValue) => {
+                problemForm.testCode = newValue;
+              }
+            "
+          />
+        </el-form-item>
       </el-form>
     </template>
     <template #footer>
       <div style="flex: auto">
-        <el-button type="primary" @click="addProblem">确认</el-button>
+        <el-button
+          type="primary"
+          v-show="drawerTitle == '添加题目'"
+          @click="addProblem(problemFormRef)"
+          >确认</el-button
+        ><el-button
+          type="primary"
+          v-show="drawerTitle == '编辑题目'"
+          @click="editProblem(problemFormRef)"
+          >确认</el-button
+        >
         <el-button type="primary" @click="clearProblemForm">重置</el-button>
         <el-button type="info" @click="addProblemDrawer = false"
           >取消</el-button

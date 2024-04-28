@@ -1,55 +1,87 @@
-<script setup>
-// # wangEditor 富文本编辑器
+<script setup lang="ts">
 import "@wangeditor/editor/dist/css/style.css"; // 引入 css
-import { ref, shallowRef, onMounted, onBeforeUnmount } from "vue";
+
+import { onBeforeUnmount, shallowRef } from "vue";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
+import request from "@/utils/request.js";
+import { ElMessage } from "element-plus";
+import type { IEditorConfig, IToolbarConfig } from "@wangeditor/core";
+const props = defineProps({
+  // 内容 HTML
+  textHtml: {
+    type: String,
+    default: "",
+  },
+  // 内容 文本
+  text: {
+    type: String,
+    default: "",
+  },
+});
+const emits = defineEmits(["getHtmlVal", "getTextVal"]);
 
 // 编辑器实例，必须用 shallowRef
 const editorRef = shallowRef();
-const editorMode = "simple";
-
-// 内容 HTML
-const valueHtml = ref("<p>hello</p>");
-
-// 模拟 ajax 异步获取内容
-onMounted(() => {
-  setTimeout(() => {
-    valueHtml.value = "<p>模拟 Ajax 异步设置内容</p>";
-  }, 1500);
-});
-
-const toolbarConfig = {
-  toolbarKeys: [
-    // 菜单 key
-    // 'headerSelect',
-    // 'bold', // 加粗
-    // 'italic', // 斜体
-    // 'through', // 删除线
-    // 'underline', // 下划线
-    // 'bulletedList', // 无序列表
-    // 'numberedList', // 有序列表
-    // 'color', // 文字颜色
-    // 'insertLink', // 插入链接
-    // 'fontSize', // 字体大小
-    // 'lineHeight', // 行高
-    // 'uploadImage', // 上传图片
-    "code", // 插入代码
-    // 'delIndent', // 缩进
-    // 'indent', // 增进
-    // 'deleteImage',//删除图片
-    // 'divider', // 分割线
-    // 'insertTable', // 插入表格
-    // 'justifyCenter', // 居中对齐
-    // 'justifyJustify', // 两端对齐
-    // 'justifyLeft', // 左对齐
-    // 'justifyRight', // 右对齐
-    "undo", // 撤销
-    "redo", // 重做
-    "clearStyle", // 清除格式
-    "fullScreen", // 全屏
+// 工具栏配置
+const toolbarConfig: Partial<IToolbarConfig> = {
+  // 用于去掉不需要的工具栏配置
+  excludeKeys: [
+    "insertVideo", // 去掉插入视频功能
+    "fullScreen", // 去掉全屏功能
   ],
 };
-const editorConfig = { placeholder: "请输入内容..." };
+// 编辑器配置
+const editorConfig: Partial<IEditorConfig> = {
+  // 最长输入2000字
+  maxLength: 10000,
+  // 进入页面不自动聚焦
+  autoFocus: true,
+  MENU_CONF: {},
+};
+// 上传图片
+editorConfig.MENU_CONF["uploadImage"] = {
+  async customUpload(file: any, insertFn: any) {
+    upLoadImgVideo("1", file, insertFn);
+  },
+};
+
+// 上传视频
+editorConfig.MENU_CONF["uploadVideo"] = {
+  async customUpload(file: any, insertFn: any) {
+    upLoadImgVideo("2", file, insertFn);
+  },
+};
+
+// 封装 - 上传图片、视频
+const upLoadImgVideo = (type: string, file: any, insertFn: any) => {
+  if (file.size / 1024 / 1024 > 50) {
+    ElMessage.error(`文件大小不能超过50MB!`);
+    return false;
+  } else {
+    // 这里根据自己的需求进行处理 --- S
+    let formData = new FormData();
+    formData.append("file", file);
+    formData.append("fileType", type);
+    const url: string = "/activity/resource/uploadFile";
+    //  这里根据自己的需求进行处理 --- E
+    request
+      .post(url, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((res: any) => {
+        console.log(res);
+        if (res.code == 0) {
+          // 上传成功后拿到的路径插入到富文本编辑器中
+          insertFn(res.data.ossFile);
+        } else {
+          ElMessage.warning(`上传失败`);
+        }
+      })
+      .catch(() => {
+        ElMessage.warning(`上传失败`);
+      });
+  }
+};
 
 // 组件销毁时，也及时销毁编辑器
 onBeforeUnmount(() => {
@@ -58,35 +90,45 @@ onBeforeUnmount(() => {
   editor.destroy();
 });
 
-const handleCreated = (editor) => {
+const handleCreated = (editor: any) => {
   editorRef.value = editor; // 记录 editor 实例，重要！
+  // 查看所有工具栏key
+  // console.log(editor.getAllMenuKeys());
+};
+
+// 获得输入的内容
+const handleChange = (editor: any) => {
+  emits("getHtmlVal", editor.getHtml());
+  emits("getTextVal", editor.getText());
 };
 </script>
 
 <template>
-  <div class="editor">
+  <div style="border: 1px solid #ccc; max-width: 800px">
+    <!-- 工具栏 -->
     <Toolbar
       style="border-bottom: 1px solid #ccc"
       :editor="editorRef"
       :defaultConfig="toolbarConfig"
-      :mode="editorMode"
+      :mode="'default'"
     />
+    <!-- 内容部分 -->
     <Editor
-      style="height: 300px; overflow-y: hidden"
-      v-model="problemForm.description"
+      style="height: 400px; overflow-y: hidden"
+      v-model="props.textHtml"
       :defaultConfig="editorConfig"
-      :mode="editorMode"
+      :mode="'default'"
       @onCreated="handleCreated"
       @onChange="handleChange"
     />
   </div>
 </template>
 
-<style scoped>
-.editor {
-  width: 100%;
-  :deep(.ql-editor) {
-    min-height: 200px;
+<style lang="scss" scoped>
+:deep() .w-e-textarea-video-container {
+  video,
+  img {
+    max-width: 787px;
   }
 }
 </style>
