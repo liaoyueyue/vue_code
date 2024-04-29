@@ -18,10 +18,15 @@ export const addProblemService = (problemData) => {
 
 // 编辑题目
 export const updateProblemService = (problemData) => {
-  return request.post("/problem/update", problemData);
+  return request.put("/problem/update", problemData);
 }
 
 // 删除题目
 export const deleteProblemService = (id) => {
-  return request.post("/problem/delete?id=" + id);
+  return request.delete("/problem/delete?id=" + id);
+}
+
+// 查询题目
+export const queryProblemService = (id) => {
+  return request.get("/problem/detail?id=" + id);
 }

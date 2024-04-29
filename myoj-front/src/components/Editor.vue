@@ -32,8 +32,8 @@ const toolbarConfig: Partial<IToolbarConfig> = {
 };
 // 编辑器配置
 const editorConfig: Partial<IEditorConfig> = {
-  // 最长输入2000字
-  maxLength: 10000,
+  // 最长输入20000字
+  maxLength: 20000,
   // 进入页面不自动聚焦
   autoFocus: true,
   MENU_CONF: {},

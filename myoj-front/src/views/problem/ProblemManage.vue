@@ -77,14 +77,15 @@ const showAddDialog = () => {
 };
 
 // 显示编辑抽屉
-const showEditDrawer = (row) => {
+const showEditDrawer = async (row) => {
   drawerTitle.value = "编辑题目";
-  problemForm.title = row.title;
-  problemForm.level = row.level;
-  problemForm.collectionId = row.collectionId;
-  problemForm.description = row.description;
-  problemForm.templateCode = row.templateCode;
-  problemForm.testCode = row.testCode;
+  let result = await queryProblemService(row.id);
+  problemForm.title = result.data.title;
+  problemForm.level = result.data.level;
+  problemForm.collectionId = result.data.collectionId;
+  problemForm.description = result.data.description;
+  problemForm.templateCode = result.data.templateCode;
+  problemForm.testCode = result.data.testCode;
   addProblemDrawer.value = true;
 };
 
@@ -162,6 +163,7 @@ import {
   addProblemService,
   updateProblemService,
   deleteProblemService,
+  queryProblemService,
 } from "@/api/problem";
 // 添加题目函数
 const addProblem = async (formEl: FormInstance | undefined) => {
@@ -220,9 +222,7 @@ import Editor from "@/components/Editor.vue";
   <el-card>
     <div class="card-header">
       <span style="font-size: larger; font-weight: bold">题目管理</span>
-      <el-button type="primary" @click="showAddDialog"
-        >添加题目</el-button
-      >
+      <el-button type="primary" @click="showAddDialog">添加题目</el-button>
     </div>
     <hr style="margin-top: 20px" />
     <el-form :inline="true" :model="searchForm" class="demo-form-inline">
@@ -234,7 +234,12 @@ import Editor from "@/components/Editor.vue";
         />
       </el-form-item>
       <el-form-item label="等级">
-        <el-select v-model="searchForm.level" placeholder="请选择" clearable>
+        <el-select
+          v-model="searchForm.level"
+          placeholder="请选择"
+          clearable
+          @change="getProblemList()"
+        >
           <el-option label="简单" value="简单" />
           <el-option label="中等" value="中等" />
           <el-option label="困难" value="困难" />
