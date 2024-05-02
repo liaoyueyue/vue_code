@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 import { ref } from "vue";
 import {
   User,
@@ -9,9 +9,24 @@ import {
 } from "@element-plus/icons-vue";
 
 const activeIndex = ref("1");
-const handleSelect = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath);
+// const handleSelect = (key: string, keyPath: string[]) => {
+//   console.log(key, keyPath);
+// };
+
+// 调用函数，获取用户详细信息
+import { userInfoService } from "@/api/user";
+import { useUserInfoStore } from "@/stores/userinfo";
+
+const userInfoStore = useUserInfoStore();
+
+const getUserInfo = async () => {
+  let result = await userInfoService();
+  userInfoStore.setInfo(result.data);
 };
+getUserInfo();
+
+import avatar from '@/assets/images/default_avatar.jpg'
+
 </script>
 
 <template>
@@ -23,17 +38,15 @@ const handleSelect = (key: string, keyPath: string[]) => {
     @select="handleSelect"
   >
     <el-menu-item index="0">
-      <img
-        style="width: 100px"
-        src="@/assets/images/logo.svg"
-        alt="logo"
-      />
+      <img style="width: 100px" src="@/assets/images/logo.svg" alt="logo" />
     </el-menu-item>
     <div class="flex-grow" />
     <el-menu-item index="1">
       <el-dropdown>
         <span class="el-dropdown-link">
-          <el-avatar> user </el-avatar>
+          <el-avatar
+            :src="userInfoStore.info.userPic?userInfoStore.info.userPic:avatar"
+          />
           <el-icon class="el-icon--right">
             <ArrowDown />
           </el-icon>
