@@ -11,6 +11,7 @@ import {
 
 import HeaderMenu from "@/components/HeaderMenu.vue";
 
+// 左侧菜单
 const isCollapse = ref(false);
 
 const handleOpen = (key: string, keyPath: string[]) => {
@@ -19,12 +20,49 @@ const handleOpen = (key: string, keyPath: string[]) => {
 const handleClose = (key: string, keyPath: string[]) => {
   console.log(key, keyPath);
 };
+
+// 导航下拉菜单路由
+import { useRouter } from "vue-router";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { useTokenStore } from "@/stores/token";
+import { useUserInfoStore } from "@/stores/userinfo";
+const tokenStore = useTokenStore();
+const userinfoStore = useUserInfoStore();
+const router = useRouter();
+const handleDropdown = (command) => {
+  if (command === "logout") {
+    ElMessageBox.confirm("是否退出登录？需要重新登录！", "警告", {
+      confirmButtonText: "确认",
+      cancelButtonText: "取消",
+      type: "warning",
+    })
+      .then(async () => {
+        // 1. 清空 pinia 中的 token 和 userinfo
+        tokenStore.removeToken();
+        userinfoStore.removeInfo();
+        // 2. 跳转到登录页面
+        router.push("/login");
+        ElMessage({
+          type: "success",
+          message: "退出登录成功",
+        });
+      })
+      .catch(() => {
+        ElMessage({
+          type: "info",
+          message: "取消退出登录",
+        });
+      });
+  } else {
+    router.push("/user/" + command);
+  }
+};
 </script>
 
 <template>
   <el-container>
     <el-header>
-      <HeaderMenu />
+      <HeaderMenu @dropdownHandle="handleDropdown" />
     </el-header>
     <el-container>
       <el-aside width="200px">
