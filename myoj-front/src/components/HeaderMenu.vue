@@ -8,7 +8,7 @@ import {
   Edit,
 } from "@element-plus/icons-vue";
 
-import avatar from "@/assets/images/default_avatar.jpg";
+import defaultAvatar from "@/assets/images/default_avatar.jpg";
 
 const emits = defineEmits(["dropdownHandle"]);
 
@@ -52,7 +52,7 @@ const dropdownHandleCommand = (command) => {
         <span class="el-dropdown-link">
           <el-avatar
             :src="
-              userInfoStore.info.userPic ? userInfoStore.info.userPic : avatar
+              userInfoStore.info.userPic ? userInfoStore.info.userPic : defaultAvatar
             "
           />
           <el-icon class="el-icon--right">

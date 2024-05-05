@@ -25,5 +25,5 @@ export const userInfoService = () => {
 
 // 用户信息修改
 export const userInfoUpdateService = (userInfoData) => {
-  return request.put("/user/updateinfo", userInfoData);
+  return request.put("/user/update-info", userInfoData);
 }
