@@ -26,4 +26,13 @@ export const userInfoService = () => {
 // 用户信息修改
 export const userInfoUpdateService = (userInfoData) => {
   return request.put("/user/update-info", userInfoData);
-}
+};
+
+// 用户修改密码
+export const userUpdatePwd = (updatePwdData) => {
+  const params = new URLSearchParams();
+  for (let key in updatePwdData) {
+    params.append(key, updatePwdData[key]);
+  }
+  return request.patch("/user/update-pwd", params);
+};
