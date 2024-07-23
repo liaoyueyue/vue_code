@@ -38,3 +38,9 @@ npm install pinia-persistedstate-plugin
 npm install @wangeditor/editor --save
 npm install @wangeditor/editor-for-vue@next --save
 ```
+
+7. Monaco Editor - 代码编辑器
+```bash 
+npm install monaco-editor
+npm install vite-plugin-monaco-editor
+```
