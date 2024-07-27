@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
+    "@monaco-editor/loader": "^1.4.0",
     "@wangeditor/editor": "^5.1.23",
     "@wangeditor/editor-for-vue": "^5.1.12",
     "axios": "^1.6.8",
@@ -16,7 +18,8 @@
     "monaco-editor": "^0.50.0",
     "pinia": "^2.1.7",
     "pinia-persistedstate-plugin": "^0.1.0",
-    "vite-plugin-monaco-editor": "^1.1.0",
+    "prettier": "^3.3.3",
+    "prettier-plugin-java": "^2.6.4",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
   },

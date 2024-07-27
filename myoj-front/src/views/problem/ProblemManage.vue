@@ -86,11 +86,13 @@ const showEditDrawer = async (row) => {
   problemForm.description = result.data.description;
   problemForm.templateCode = result.data.templateCode;
   problemForm.testCode = result.data.testCode;
+  problemForm.id = row.id;
   addProblemDrawer.value = true;
 };
 
 // # 题目添加表单
 interface ProblemForm {
+  id?: number; // 添加一个可选的 id 属性
   title: string;
   level: string;
   collectionId: number;
@@ -215,7 +217,7 @@ const deletePrblem = (row) => {
 };
 
 // # 富文本编辑器
-import Editor from "@/components/Editor.vue";
+import WangEditor from "@/components/WangEditor.vue";
 </script>
 
 <template>
@@ -334,7 +336,7 @@ import Editor from "@/components/Editor.vue";
           />
         </el-form-item>
         <el-form-item label="描述" prop="description">
-          <Editor
+          <WangEditor
             :textHtml="problemForm.description"
             @getTextVal="
               (newValue) => {
@@ -344,7 +346,7 @@ import Editor from "@/components/Editor.vue";
           />
         </el-form-item>
         <el-form-item label="模板代码" prop="templateCode">
-          <Editor
+          <WangEditor
             :textHtml="problemForm.templateCode"
             @getTextVal="
               (newValue) => {
@@ -354,7 +356,7 @@ import Editor from "@/components/Editor.vue";
           />
         </el-form-item>
         <el-form-item label="测试代码" prop="testCode">
-          <Editor
+          <WangEditor
             :textHtml="problemForm.testCode"
             @getTextVal="
               (newValue) => {

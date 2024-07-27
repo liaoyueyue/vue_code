@@ -1,31 +1,84 @@
-<script lang="ts" setup>
+<script setup>
 import { useRoute } from "vue-router";
-import { ref } from "vue";
+import { reactive, ref } from "vue";
+import { Edit } from "@element-plus/icons-vue";
 
 const route = useRoute();
 const id = route.params.id;
 
-// 导航栏
-const activeIndex = ref("0");
-const handleSelect = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath);
+// 导入题目数据
+const title = ref();
+const description = ref();
+import { queryProblemService } from "@/api/problem";
+const getProblemInfo = async () => {
+  let result = await queryProblemService(id);
+  title.value = result.data.title;
+  description.value = result.data.description;
+  code.value = result.data.templateCode;
 };
+getProblemInfo();
 
-// 编译器
+// 代码编辑器
 import MonacoEditor from "@/components/MonacoEditor.vue";
+import prettier from "prettier/standalone";
+import java from "prettier-plugin-java";
 const code = ref("// 在这里编写代码");
+const language = ref("java");
+const theme = ref("vs-dark");
+
 const output = ref();
-const handleSubmit = () => {};
+
+const languageOptions = ref([
+  {
+    key: "Java",
+    label: "Java",
+    value: "java",
+  },
+  {
+    key: "C++",
+    label: "C++",
+    value: "c++",
+  },
+  {
+    key: "Javascript",
+    label: "Javascript",
+    value: "javascript",
+  },
+]);
+
+const formatCode = async () => {
+  const formattedCode = await prettier.format(code.value, {
+    parser: "java",
+    plugins: [java],
+  });
+  code.value = formattedCode;
+};
 
 const submitCode = () => {
   // 这里添加提交代码的逻辑
   alert("代码已提交");
 };
 
-const runCode = () => {
-  // 这里添加运行代码的逻辑
-  // 模拟输出结果
-  output.value = "运行结果：\n" + code.value;
+import { compileProblemService } from "@/api/compile";
+import { ElMessage } from "element-plus";
+const runCode = async () => {
+  console.log(id)
+  console.log(code.value)
+  if (code.value == " " || code.value == null || code.value == "// 请在此处编写你的 Java 代码") {
+      ElMessage.error("提交代码为空！");
+      return;
+  }
+  let compileData = reactive({
+    id: id,
+    code: code.value,
+  });
+  let result = await compileProblemService(compileData);
+  if (result.data.error == 0) {
+    // 编译运行没有问题
+    output.value = result.data.stdout;
+  } else {
+    output.value = result.data.reason;
+  } 
 };
 </script>
 
@@ -34,45 +87,62 @@ const runCode = () => {
     <el-container style="height: 100vh">
       <el-header>
         <el-menu
-          :default-active="activeIndex"
+          :default-active="$route.path"
+          router
           class="el-menu-demo"
           mode="horizontal"
           :ellipsis="false"
-          @select="handleSelect"
         >
-          <el-menu-item index="0"> 题目列表 </el-menu-item>
-          <div class="flex-grow" />
+          <el-menu-item index="/index"> 题目列表 </el-menu-item>
         </el-menu>
       </el-header>
       <el-main>
         <el-row :gutter="10" style="height: 100%">
           <el-col :span="11" style="height: 100%">
             <el-card shadow="hover" style="height: 100%; overflow: auto">
-              <h2>题目信息</h2>
-              <p>这是题目描述，可以包括代码示例、输入输出说明等。</p>
+              <h2>{{ title }}</h2>
+              <p>{{ description }}</p>
             </el-card>
           </el-col>
           <el-col :span="13" style="height: 100%">
             <el-card shadow="hover" style="height: 100%; overflow: auto">
-              <el-form @submit.native.prevent="handleSubmit">
-                <el-form-item>
-                  <el-input
-                    type="textarea"
-                    v-model="code"
-                    rows="15"
-                    placeholder="在这里编写代码"
-                  ></el-input>
-                  <div></div>
-                </el-form-item>
-                <el-form-item>
-                  <el-button type="primary" @click="runCode"
-                    >运行代码</el-button
-                  >
-                  <el-button type="success" @click="submitCode"
-                    >提交代码</el-button
-                  >
-                </el-form-item>
-              </el-form>
+              <div class="editor-controls">
+                <el-select
+                  v-model="language"
+                  placeholder="Select"
+                  size="large"
+                  style="width: 180px"
+                >
+                  <el-option
+                    v-for="item in languageOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
+                <el-button
+                  type="warning"
+                  size="large"
+                  plain
+                  :icon="Edit"
+                  @click="formatCode"
+                  >格式化代码</el-button
+                >
+                <el-text class="mx-1" type="danger">目前仅支持Java</el-text>
+              </div>
+              <div id="monaco-editor" style="height: 400px; margin: 2px 0px">
+                <MonacoEditor
+                  v-model:value="code"
+                  :language="language"
+                  :theme="theme"
+                />
+              </div>
+              <div class="submit-controls">
+                <el-button type="primary" @click="runCode">运行代码</el-button>
+                <el-button type="success" @click="submitCode"
+                  >提交代码</el-button
+                >
+              </div>
               <h3>输出结果</h3>
               <el-card style="height: 100%; overflow: auto">
                 <pre>{{ output }}</pre>
@@ -91,5 +161,9 @@ const runCode = () => {
 }
 h2 {
   margin-top: 0;
+}
+.editor-controls .el-select,
+.el-button {
+  margin-right: 10px;
 }
 </style>

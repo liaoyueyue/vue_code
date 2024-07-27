@@ -1,59 +1,77 @@
-<template>
-  <div ref="editorContainer" style="height: 400px"></div>
-</template>
-
 <script setup>
-import * as monaco from "monaco-editor";
-import { ref, onMounted, watch } from "vue";
+import {
+  ref,
+  onMounted,
+  onBeforeUnmount,
+  watch,
+} from "vue";
+import loader from "@monaco-editor/loader";
 
 const props = defineProps({
-  modelValue: String,
+  value: String,
   language: {
     type: String,
     default: "java",
   },
+  theme: {
+    type: String,
+    default: "vs-dark",
+  },
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const emits = defineEmits(["update:value"]);
 
 const editorContainer = ref(null);
-const editor = ref(null);
+let editorInstance = null;
 
 onMounted(() => {
-  editor.value = monaco.editor.create(editorContainer.value, {
-    value: props.modelValue || "",
-    language: props.language,
-    minimap: {
-      enabled: true,
-    },
-    colorDecorators: true,
-    readOnly: false,
-    theme: "vs-dark",
-  });
+  loader.init().then((monaco) => {
+    editorInstance = monaco.editor.create(editorContainer.value, {
+      value: props.value || "",
+      language: props.language,
+      theme: props.theme,
+    });
 
-  // 监听编辑器内容变化
-  editor.value.onDidChangeModelContent(() => {
-    emit("update:modelValue", editor.value.getValue());
+    editorInstance.onDidChangeModelContent(() => {
+      emits("update:value", editorInstance.getValue());
+    });
   });
 });
 
-// 监听 modelValue 的变化，并更新编辑器内容
+onBeforeUnmount(() => {
+  if (editorInstance) {
+    editorInstance.dispose();
+  }
+});
+
 watch(
-  () => props.modelValue,
+  () => props.language,
+  (newLanguage) => {
+    if (editorInstance) {
+      loader.init().then((monaco) => {
+        monaco.editor.setModelLanguage(editorInstance.getModel(), newLanguage);
+      });
+    }
+  }
+);
+
+watch(
+  () => props.value,
   (newValue) => {
-    if (editor.value && editor.value.getValue() !== newValue) {
-      editor.value.setValue(newValue);
+    if (editorInstance && editorInstance.getValue() !== newValue) {
+      editorInstance.setValue(newValue);
     }
   }
 );
 </script>
 
+<template>
+  <div ref="editorContainer" class="editor-container"></div>
+</template>
+
 <style>
-/* 确保编辑器占满父容器 */
-div[ref="editorContainer"] {
-  height: 100%;
+.editor-container {
   width: 100%;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  height: 100%;
 }
 </style>

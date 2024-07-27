@@ -14,22 +14,33 @@ import Developing from "@/views/template/developing.vue";
 
 // 2. 定义路由
 const routes = [
+  { path: "/", redirect: "/index" },
   { path: "/login", component: LoginView },
   { path: "/index", component: IndexView },
   { path: "/practice/:id", component: PracticeView },
   {
-    path: "/",
+    path: "/manage",
     component: ManageView,
-    redirect: "/problem/manage",
+    redirect: "/manage/problem/manage",
     children: [
-      { path: "problem/collection", component: ProblemCollection },
-      { path: "problem/manage", component: ProblemManage },
-      { path: "user/avater", component: UserAvater },
-      { path: "user/info", component: UserInfo },
-      { path: "user/updatePwd", component: UserUpdatePwd },
+      {
+        path: "problem",
+        children: [
+          { path: "collection", component: ProblemCollection },
+          { path: "manage", component: ProblemManage },
+        ],
+      },
+      {
+        path: "user",
+        children: [
+          { path: "avater", component: UserAvater },
+          { path: "info", component: UserInfo },
+          { path: "updatePwd", component: UserUpdatePwd },
+        ],
+      },
       { path: "developing", component: Developing },
     ],
-  }
+  },
 ];
 
 // 3. 创建路由实例并传递 `routes` 配置

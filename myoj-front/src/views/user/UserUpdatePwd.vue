@@ -52,16 +52,18 @@ const updatePwd = async (formEl: FormInstance | undefined) => {
       let result = userUpdatePwd(updatePwdForm);
       ElMessage.success("修改成功");
       router.push("/login");
-    } else {
-      return false;
     }
   });
 };
 </script>
 <template>
+  
   <el-card>
-    <!-- 登录表单 -->
-    <h2>登录</h2>
+    <template #header>
+      <div class="header">
+        <span>更改密码</span>
+      </div>
+    </template>
     <el-form
       ref="updatePwdFormRef"
       :model="updatePwdForm"
